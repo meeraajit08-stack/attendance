@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Check-in</title>
+    <title>Office Attendance Check-in</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,201 +20,347 @@
             align-items: center;
             padding: 20px;
         }
+        
         .container {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px 30px;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
+            animation: slideIn 0.5s ease-out;
         }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 10px;
             font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
+        
         .subtitle {
             text-align: center;
             color: #666;
             margin-bottom: 30px;
             font-size: 14px;
         }
+        
         .status {
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             text-align: center;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
         }
+        
         .status.loading {
             background: #fff3cd;
             color: #856404;
             border: 2px solid #ffc107;
         }
+        
         .status.success {
             background: #d4edda;
             color: #155724;
             border: 2px solid #28a745;
         }
+        
         .status.error {
             background: #f8d7da;
             color: #721c24;
             border: 2px solid #dc3545;
         }
+        
         .form-group {
             margin-bottom: 20px;
         }
+        
         label {
             display: block;
             margin-bottom: 8px;
             color: #333;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
         }
+        
         input[type="text"] {
             width: 100%;
-            padding: 12px 15px;
+            padding: 14px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            font-family: inherit;
         }
+        
         input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+        
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+        
         button {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
+        
         button:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
+        
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
+        
         .gps-info {
             background: #e3f2fd;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 10px;
             margin-top: 15px;
             font-size: 12px;
             color: #1565c0;
             text-align: center;
+            border: 1px solid #90caf9;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .response-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .response-details strong {
+            color: #333;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏢 Office Check-in</h1>
+        <h1>
+            <span>🏢</span>
+            <span>Office Check-in</span>
+        </h1>
         <p class="subtitle">Automated Attendance System</p>
         
         <div id="status" class="status loading">
-            📍 Getting your location...
+            <div class="loader"></div>
+            <p>📍 Getting your location...</p>
         </div>
         
-        <form id="checkinForm" style="display: none;">
+        <form id="checkinForm" class="hidden">
             <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" placeholder="Enter your full name" required>
+                <label for="fullName">Full Name *</label>
+                <input 
+                    type="text" 
+                    id="fullName" 
+                    name="fullName"
+                    placeholder="Enter your full name" 
+                    required
+                    autocomplete="name"
+                >
             </div>
             
             <div class="form-group">
-                <label for="employeeId">Employee ID</label>
-                <input type="text" id="employeeId" placeholder="Enter your employee ID" required>
+                <label for="employeeId">Employee ID *</label>
+                <input 
+                    type="text" 
+                    id="employeeId" 
+                    name="employeeId"
+                    placeholder="Enter your employee ID" 
+                    required
+                    autocomplete="off"
+                >
             </div>
             
-            <button type="submit" id="submitBtn">✓ Check In</button>
+            <button type="submit" id="submitBtn">
+                ✓ Check In
+            </button>
             
             <div class="gps-info" id="gpsInfo"></div>
+            <div id="responseDetails" class="response-details hidden"></div>
         </form>
     </div>
 
     <script>
-        // ⚠️ IMPORTANT: Replace this with your actual n8n webhook URL
+        // ⚠️ IMPORTANT: Replace with your actual n8n webhook URL
         const WEBHOOK_URL = 'https://poonia.app.n8n.cloud/webhook/attendance-checkin';
         
+        // Store user location
         let userLocation = null;
 
-        // Automatically get GPS location when page loads
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    userLocation = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-                    
-                    document.getElementById('status').innerHTML = '✅ Location captured successfully!';
-                    document.getElementById('status').className = 'status success';
-                    document.getElementById('checkinForm').style.display = 'block';
-                    document.getElementById('gpsInfo').innerHTML = 
-                        `📍 Lat: ${userLocation.latitude.toFixed(6)}, Long: ${userLocation.longitude.toFixed(6)}<br>Accuracy: ±${Math.round(userLocation.accuracy)}m`;
-                },
-                function(error) {
-                    let errorMsg = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMsg = '❌ Location access denied. Please enable location permissions in your browser settings.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMsg = '❌ Location information unavailable. Please check your GPS settings.';
-                            break;
-                        case error.TIMEOUT:
-                            errorMsg = '❌ Location request timed out. Please try again.';
-                            break;
-                        default:
-                            errorMsg = '❌ An unknown error occurred while getting location.';
-                    }
-                    document.getElementById('status').innerHTML = errorMsg;
-                    document.getElementById('status').className = 'status error';
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        } else {
-            document.getElementById('status').innerHTML = '❌ Your device does not support GPS location services.';
+        // Check if webhook URL is configured
+        if (WEBHOOK_URL === 'https://poonia.app.n8n.cloud/webhook/attendance-checkin' || !WEBHOOK_URL) {
+            document.getElementById('status').innerHTML = 
+                '⚠️ Configuration Error<br><br>Webhook URL not set. Please contact administrator.';
             document.getElementById('status').className = 'status error';
+        } else {
+            // Automatically get GPS location when page loads
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    // Success callback
+                    function(position) {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        // Update UI
+                        document.getElementById('status').innerHTML = 
+                            '✅ Location captured successfully!';
+                        document.getElementById('status').className = 'status success';
+                        document.getElementById('checkinForm').classList.remove('hidden');
+                        
+                        // Show GPS info
+                        document.getElementById('gpsInfo').innerHTML = 
+                            `📍 Latitude: ${userLocation.latitude.toFixed(6)}<br>` +
+                            `📍 Longitude: ${userLocation.longitude.toFixed(6)}<br>` +
+                            `🎯 Accuracy: ±${Math.round(userLocation.accuracy)} meters`;
+                        
+                        console.log('Location captured:', userLocation);
+                    },
+                    // Error callback
+                    function(error) {
+                        let errorMsg = '';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = '❌ Location Access Denied<br><br>' +
+                                          'Please enable location permissions in your browser settings and refresh the page.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = '❌ Location Unavailable<br><br>' +
+                                          'Location information is not available. Please check your GPS settings.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = '❌ Request Timeout<br><br>' +
+                                          'Location request timed out. Please refresh and try again.';
+                                break;
+                            default:
+                                errorMsg = '❌ Unknown Error<br><br>' +
+                                          'An error occurred while getting your location.';
+                        }
+                        
+                        document.getElementById('status').innerHTML = errorMsg;
+                        document.getElementById('status').className = 'status error';
+                        console.error('Geolocation error:', error);
+                    },
+                    // Options
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                document.getElementById('status').innerHTML = 
+                    '❌ GPS Not Supported<br><br>Your device does not support GPS location services.';
+                document.getElementById('status').className = 'status error';
+            }
         }
 
         // Handle form submission
         document.getElementById('checkinForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Validate location is available
             if (!userLocation) {
-                alert('Location not available. Please refresh and allow location access.');
+                alert('Location not available. Please refresh the page and allow location access.');
                 return;
             }
             
+            // Get form data
+            const fullName = document.getElementById('fullName').value.trim();
+            const employeeId = document.getElementById('employeeId').value.trim();
+            
+            // Validate inputs
+            if (!fullName || !employeeId) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Disable submit button
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Checking in...';
+            submitBtn.innerHTML = '<div class="loader" style="width: 20px; height: 20px; border-width: 2px; display: inline-block; margin: 0;"></div> Processing...';
             
+            // Prepare data payload
             const data = {
-                fullName: document.getElementById('fullName').value.trim(),
-                employeeId: document.getElementById('employeeId').value.trim(),
+                fullName: fullName,
+                employeeId: employeeId,
                 latitude: userLocation.latitude,
                 longitude: userLocation.longitude,
                 accuracy: userLocation.accuracy,
-                timestamp: new Date().toISOString()
+                timestamp: userLocation.timestamp
             };
             
+            console.log('Sending data:', data);
+            
             try {
+                // Send POST request to webhook
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: {
@@ -218,38 +369,90 @@
                     body: JSON.stringify(data)
                 });
                 
-                const result = await response.json();
+                console.log('Response status:', response.status);
                 
-                const statusDiv = document.getElementById('status');
-                if (result.success) {
-                    statusDiv.innerHTML = `✅ ${result.message}`;
-                    statusDiv.className = 'status success';
-                    document.getElementById('checkinForm').reset();
-                    
-                    // Hide form after 3 seconds
-                    setTimeout(() => {
-                        document.getElementById('checkinForm').style.display = 'none';
-                        statusDiv.innerHTML += '<br><br>You can close this page now.';
-                    }, 3000);
-                } else {
-                    statusDiv.innerHTML = `❌ ${result.message}`;
-                    statusDiv.className = 'status error';
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                statusDiv.scrollIntoView({ behavior: 'smooth' });
+                // Parse JSON response
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                // Update UI based on response
+                const statusDiv = document.getElementById('status');
+                const detailsDiv = document.getElementById('responseDetails');
+                
+                if (result.success) {
+                    // Success case
+                    statusDiv.innerHTML = '✅ ' + (result.message || 'Attendance Marked Successfully!');
+                    statusDiv.className = 'status success';
+                    
+                    // Show details if available
+                    if (result.details) {
+                        let detailsHTML = '<strong>Details:</strong><br>';
+                        detailsHTML += `Name: ${result.details.name || fullName}<br>`;
+                        detailsHTML += `Employee ID: ${result.details.employeeId || employeeId}<br>`;
+                        detailsHTML += `Date: ${result.details.date || 'N/A'}<br>`;
+                        detailsHTML += `Time: ${result.details.time || 'N/A'}<br>`;
+                        detailsHTML += `Status: ${result.details.status || 'Present'}<br>`;
+                        detailsHTML += `Distance: ${result.details.distance || 'N/A'}`;
+                        
+                        detailsDiv.innerHTML = detailsHTML;
+                        detailsDiv.classList.remove('hidden');
+                    }
+                    
+                    // Clear form
+                    document.getElementById('checkinForm').reset();
+                    
+                    // Hide form after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById('checkinForm').classList.add('hidden');
+                        statusDiv.innerHTML += '<br><br>You can close this page now.';
+                    }, 5000);
+                    
+                } else {
+                    // Error case
+                    statusDiv.innerHTML = '❌ ' + (result.message || 'Check-in Failed');
+                    statusDiv.className = 'status error';
+                    
+                    // Show error details if available
+                    if (result.details) {
+                        let detailsHTML = '<strong>Error Details:</strong><br>';
+                        detailsHTML += `Distance: ${result.details.distance || 'N/A'}<br>`;
+                        detailsHTML += `Required: ${result.details.required || '50m'}<br>`;
+                        if (result.details.officeLocation) {
+                            detailsHTML += `Office: ${result.details.officeLocation.latitude}, ${result.details.officeLocation.longitude}`;
+                        }
+                        
+                        detailsDiv.innerHTML = detailsHTML;
+                        detailsDiv.classList.remove('hidden');
+                    }
+                }
+                
+                // Scroll to status message
+                statusDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
             } catch (error) {
-                document.getElementById('status').innerHTML = '❌ Connection error. Please check your internet and try again.';
-                document.getElementById('status').className = 'status error';
+                // Network or other errors
                 console.error('Error:', error);
+                
+                const statusDiv = document.getElementById('status');
+                statusDiv.innerHTML = 
+                    '❌ Connection Error<br><br>' +
+                    'Unable to connect to server. Please check your internet connection and try again.<br><br>' +
+                    '<small>Error: ' + error.message + '</small>';
+                statusDiv.className = 'status error';
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
-            
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
         });
+        
+        // Log webhook URL for debugging (remove in production)
+        console.log('Webhook URL configured:', WEBHOOK_URL !== 'https://poonia.app.n8n.cloud/webhook/attendance-checkin');
     </script>
 </body>
 </html>
-
-
-
