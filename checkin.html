@@ -245,13 +245,13 @@
 
     <script>
         // ⚠️ IMPORTANT: Replace with your actual n8n webhook URL
-        const WEBHOOK_URL = 'https://poonia.app.n8n.cloud/webhook/attendance-checkin';
+        const WEBHOOK_URL = "https://poonia.app.n8n.cloud/webhook/attendance-checkin";
         
         // Store user location
         let userLocation = null;
 
         // Check if webhook URL is configured
-        if (WEBHOOK_URL === 'https://poonia.app.n8n.cloud/webhook/attendance-checkin' || !WEBHOOK_URL) {
+        if (WEBHOOK_URL === "https://poonia.app.n8n.cloud/webhook/attendance-checkin" || !WEBHOOK_URL) {
             document.getElementById('status').innerHTML = 
                 '⚠️ Configuration Error<br><br>Webhook URL not set. Please contact administrator.';
             document.getElementById('status').className = 'status error';
@@ -452,7 +452,8 @@
         });
         
         // Log webhook URL for debugging (remove in production)
-        console.log('Webhook URL configured:', WEBHOOK_URL !== 'https://poonia.app.n8n.cloud/webhook/attendance-checkin');
+        console.log('Webhook URL configured:', WEBHOOK_URL !== "https://poonia.app.n8n.cloud/webhook/attendance-checkin");
     </script>
 </body>
 </html>
+
